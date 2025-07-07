@@ -1,5 +1,11 @@
-{ stdenv, callPackage, withLinuxHeaders ? true, profilingLibraries ? false
-, withGd ? false, buildPackages }:
+{
+  stdenv,
+  callPackage,
+  withLinuxHeaders ? true,
+  profilingLibraries ? false,
+  withGd ? false,
+  buildPackages,
+}:
 
 let
   gdCflags = [
@@ -8,7 +14,8 @@ let
     "-Wno-error=array-bounds"
   ];
 
-in callPackage ./common.nix { inherit stdenv; } {
+in
+callPackage ./common.nix { inherit stdenv; } {
   name = "glibc" + stdenv.lib.optionalString withGd "-gd";
 
   inherit withLinuxHeaders profilingLibraries withGd;
@@ -38,28 +45,31 @@ in callPackage ./common.nix { inherit stdenv; } {
   # The stackprotector and fortify hardening flags are autodetected by glibc
   # and enabled by default if supported. Setting it for every gcc invocation
   # does not work.
-  hardeningDisable = [
-    "stackprotector"
-    "fortify"
-  ]
-  # XXX: Not actually musl-speciic but since only musl enables pie by default,
-  #      limit rebuilds by only disabling pie w/musl
+  hardeningDisable =
+    [
+      "stackprotector"
+      "fortify"
+    ]
+    # XXX: Not actually musl-speciic but since only musl enables pie by default,
+    #      limit rebuilds by only disabling pie w/musl
     ++ stdenv.lib.optional stdenv.hostPlatform.isMusl "pie";
 
-  NIX_CFLAGS_COMPILE = stdenv.lib.concatStringsSep " " (builtins.concatLists [
-    (stdenv.lib.optionals withGd gdCflags)
-    # Fix -Werror build failure when building glibc with musl with GCC >= 8, see:
-    # https://github.com/NixOS/nixpkgs/pull/68244#issuecomment-544307798
-    (stdenv.lib.optional stdenv.hostPlatform.isMusl
-      "-Wno-error=attribute-alias")
-    (stdenv.lib.optionals ((stdenv.hostPlatform != stdenv.buildPlatform)
-      || stdenv.hostPlatform.isMusl) [
-        # Ignore "error: '__EI___errno_location' specifies less restrictive attributes than its target '__errno_location'"
-        # New warning as of GCC 9
-        # Same for musl: https://github.com/NixOS/nixpkgs/issues/78805
-        "-Wno-error=missing-attributes"
-      ])
-  ]);
+  NIX_CFLAGS_COMPILE = stdenv.lib.concatStringsSep " " (
+    builtins.concatLists [
+      (stdenv.lib.optionals withGd gdCflags)
+      # Fix -Werror build failure when building glibc with musl with GCC >= 8, see:
+      # https://github.com/NixOS/nixpkgs/pull/68244#issuecomment-544307798
+      (stdenv.lib.optional stdenv.hostPlatform.isMusl "-Wno-error=attribute-alias")
+      (stdenv.lib.optionals ((stdenv.hostPlatform != stdenv.buildPlatform) || stdenv.hostPlatform.isMusl)
+        [
+          # Ignore "error: '__EI___errno_location' specifies less restrictive attributes than its target '__errno_location'"
+          # New warning as of GCC 9
+          # Same for musl: https://github.com/NixOS/nixpkgs/issues/78805
+          "-Wno-error=missing-attributes"
+        ]
+      )
+    ]
+  );
 
   # When building glibc from bootstrap-tools, we need libgcc_s at RPATH for
   # any program we run, because the gcc will have been placed at a new
@@ -77,33 +87,38 @@ in callPackage ./common.nix { inherit stdenv; } {
     fi
   '';
 
-  postInstall = (if stdenv.hostPlatform == stdenv.buildPlatform then ''
-    echo SUPPORTED-LOCALES=C.UTF-8/UTF-8 > ../glibc-2*/localedata/SUPPORTED
-    make -j''${NIX_BUILD_CORES:-1} -l''${NIX_BUILD_CORES:-1} localedata/install-locales
-  '' else
-    stdenv.lib.optionalString stdenv.buildPlatform.isLinux ''
-      # This is based on http://www.linuxfromscratch.org/lfs/view/development/chapter06/glibc.html
-      # Instead of using their patch to build a build-native localedef,
-      # we simply use the one from buildPackages
-      pushd ../glibc-2*/localedata
-      export I18NPATH=$PWD GCONV_PATH=$PWD/../iconvdata
-      mkdir -p $NIX_BUILD_TOP/${buildPackages.glibc}/lib/locale
-      ${stdenv.lib.getBin buildPackages.glibc}/bin/localedef \
-        --alias-file=../intl/locale.alias \
-        -i locales/C \
-        -f charmaps/UTF-8 \
-        --prefix $NIX_BUILD_TOP \
-        ${
-          if stdenv.hostPlatform.parsed.cpu.significantByte.name
-          == "littleEndian" then
-            "--little-endian"
-          else
-            "--big-endian"
-        } \
-        C.UTF-8
-      cp -r $NIX_BUILD_TOP/${buildPackages.glibc}/lib/locale $out/lib
-      popd
-    '') + ''
+  postInstall =
+    (
+      if stdenv.hostPlatform == stdenv.buildPlatform then
+        ''
+          echo SUPPORTED-LOCALES=C.UTF-8/UTF-8 > ../glibc-2*/localedata/SUPPORTED
+          make -j''${NIX_BUILD_CORES:-1} -l''${NIX_BUILD_CORES:-1} localedata/install-locales
+        ''
+      else
+        stdenv.lib.optionalString stdenv.buildPlatform.isLinux ''
+          # This is based on http://www.linuxfromscratch.org/lfs/view/development/chapter06/glibc.html
+          # Instead of using their patch to build a build-native localedef,
+          # we simply use the one from buildPackages
+          pushd ../glibc-2*/localedata
+          export I18NPATH=$PWD GCONV_PATH=$PWD/../iconvdata
+          mkdir -p $NIX_BUILD_TOP/${buildPackages.glibc}/lib/locale
+          ${stdenv.lib.getBin buildPackages.glibc}/bin/localedef \
+            --alias-file=../intl/locale.alias \
+            -i locales/C \
+            -f charmaps/UTF-8 \
+            --prefix $NIX_BUILD_TOP \
+            ${
+              if stdenv.hostPlatform.parsed.cpu.significantByte.name == "littleEndian" then
+                "--little-endian"
+              else
+                "--big-endian"
+            } \
+            C.UTF-8
+          cp -r $NIX_BUILD_TOP/${buildPackages.glibc}/lib/locale $out/lib
+          popd
+        ''
+    )
+    + ''
 
       test -f $out/etc/ld.so.cache && rm $out/etc/ld.so.cache
 
@@ -130,7 +145,8 @@ in callPackage ./common.nix { inherit stdenv; } {
       for i in "$out"/lib/*.a; do
           [ "$i" = "$out/lib/libm.a" ] || $STRIP -S "$i"
       done
-    '' + ''
+    ''
+    + ''
 
       # Put libraries for static linking in a separate output.  Note
       # that libc_nonshared.a and libpthread_nonshared.a are required

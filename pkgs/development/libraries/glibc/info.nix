@@ -1,4 +1,8 @@
-{ callPackage, texinfo, perl }:
+{
+  callPackage,
+  texinfo,
+  perl,
+}:
 
 callPackage ./common.nix { } {
   name = "glibc-info";
@@ -7,7 +11,10 @@ callPackage ./common.nix { } {
 
   configureFlags = [ "--enable-add-ons" ];
 
-  buildInputs = [ texinfo perl ];
+  buildInputs = [
+    texinfo
+    perl
+  ];
 
   buildPhase = "make info";
 
