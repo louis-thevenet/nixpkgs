@@ -155,6 +155,7 @@ stdenv.mkDerivation (
 
     configureFlags =
       [
+        "--disable-werror" # Recent GCC is more strict
         "-C"
         "--enable-add-ons"
         "--enable-obsolete-nsl"
