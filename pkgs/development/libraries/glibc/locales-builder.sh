@@ -1,6 +1,8 @@
 # Glibc cannot have itself in its RPATH.
 export NIX_NO_SELF_RPATH=1
 
+source $stdenv/setup
+
 postConfigure() {
     # Hack: get rid of the `-static' flag set by the bootstrap stdenv.
     # This has to be done *after* `configure' because it builds some
