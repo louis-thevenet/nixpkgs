@@ -4,12 +4,6 @@ __nixpkgs_setup_set_original=$-
 set -eu
 set -o pipefail
 
-if [[ -n "${BASH_VERSINFO-}" && "${BASH_VERSINFO-}" -lt 5 ]]; then
-    echo "Detected Bash version that isn't supported by Nixpkgs (${BASH_VERSION})"
-    echo "Please install Bash 5 or greater to continue."
-    exit 1
-fi
-
 shopt -s inherit_errexit
 
 # $NIX_DEBUG must be a documented integer level, if set, so we can use it safely as an integer.
