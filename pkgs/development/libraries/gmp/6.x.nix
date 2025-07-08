@@ -20,7 +20,7 @@ in
 let
   self = stdenv.mkDerivation rec {
     pname = "gmp${lib.optionalString cxx "-with-cxx"}";
-    version = "6.3.0";
+    version = "6.2.0";
 
     src = fetchurl {
       # we need to use bz2, others aren't in bootstrapping stdenv
@@ -28,7 +28,7 @@ let
         "mirror://gnu/gmp/gmp-${version}.tar.bz2"
         "ftp://ftp.gmplib.org/pub/gmp-${version}/gmp-${version}.tar.bz2"
       ];
-      hash = "sha256-rCghGnz7YJuuLiyNYFjWbI/pZDT3QM9v4uR7AA0cIMs=";
+      hash = "sha256-9RyZyxFN6yGmAHX/tJTBohDrnXy3Ke0ELdt96VNEUeo=";
     };
 
     #outputs TODO: split $cxx due to libstdc++ dependency
