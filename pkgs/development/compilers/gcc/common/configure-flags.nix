@@ -142,6 +142,8 @@ let
       "--with-mpfr-include=${mpfr.dev}/include"
       "--with-mpfr-lib=${mpfr.out}/lib"
       "--with-mpc=${libmpc}"
+      "--disable-libssp"
+
     ]
     ++ lib.optionals (!withoutTargetLibc) [
       (
