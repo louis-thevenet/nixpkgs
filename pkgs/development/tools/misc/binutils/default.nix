@@ -59,6 +59,8 @@ stdenv.mkDerivation {
 
   patches =
     [
+      ./fix_newer_gcc.patch
+
       # Make binutils output deterministic by default.
       ./deterministic.patch
 
@@ -152,7 +154,13 @@ stdenv.mkDerivation {
   ] ++ lib.optional (stdenv.targetPlatform != stdenv.hostPlatform) "target";
 
   configureFlags =
-    [ "--disable-werror" ] # Recent GCC is more strict
+    [
+      "--disable-werror"
+    ]
+    ++ [
+      "CFLAGS=-Wno-narrowing"
+      "CXXFLAGS=-Wno-narrowing"
+    ]
     ++ (
       if enableShared then
         [
