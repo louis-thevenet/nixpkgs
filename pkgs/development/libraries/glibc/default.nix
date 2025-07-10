@@ -80,12 +80,21 @@ callPackage ./common.nix { inherit stdenv; } {
   # Building from a proper gcc staying in the path where it was installed,
   # libgcc_s will not be at {gcc}/lib, and gcc's libgcc will be found without
   # any special hack.
+  # 
+  # libgcc_s.so.1 is needed for pthread_cancel to work, since glibc's
+  # pthread_cancel implementation uses dlopen() to load libgcc_s.so.1 at runtime.
   preInstall = ''
+    # Try both old location (bootstrap-tools) and new location (multi-output gcc)
     if [ -f ${stdenv.cc.cc}/lib/libgcc_s.so.1 ]; then
         mkdir -p $out/lib
         cp ${stdenv.cc.cc}/lib/libgcc_s.so.1 $out/lib/libgcc_s.so.1
         # the .so It used to be a symlink, but now it is a script
         cp -a ${stdenv.cc.cc}/lib/libgcc_s.so $out/lib/libgcc_s.so
+    elif [ -f ${stdenv.cc.cc.lib}/lib/libgcc_s.so.1 ]; then
+        mkdir -p $out/lib
+        cp ${stdenv.cc.cc.lib}/lib/libgcc_s.so.1 $out/lib/libgcc_s.so.1
+        # the .so It used to be a symlink, but now it is a script
+        cp -a ${stdenv.cc.cc.lib}/lib/libgcc_s.so $out/lib/libgcc_s.so
     fi
   '';
 
