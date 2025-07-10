@@ -68,7 +68,7 @@ else
           ''
         else
           ''
-            $CC -Wall -std=c99 -O3 -fPIC libredirect.c \
+            $CC -Wall -std=c99 -O3 -fPIC -ldl libredirect.c \
               -shared -o "$libName"
           ''
       }
