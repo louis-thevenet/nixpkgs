@@ -119,9 +119,9 @@ stdenv.mkDerivation rec {
       (lib.withFeature withP11-kit "p11-kit")
       (lib.enableFeature cxxBindings "cxx")
     ]
-    ++ lib.optionals stdenv.hostPlatform.isLinux [
-      "--enable-ktls"
-    ]
+    # ++ lib.optionals stdenv.hostPlatform.isLinux [
+    #   "--enable-ktls"
+    # ]
     ++ lib.optionals (stdenv.hostPlatform.isMinGW) [
       "--disable-doc"
     ]
