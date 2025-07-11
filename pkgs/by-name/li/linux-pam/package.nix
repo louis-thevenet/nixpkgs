@@ -24,6 +24,7 @@ stdenv.mkDerivation rec {
 
   patches = [
     ./suid-wrapper-path.patch
+    ./fix-asprintf.patch
   ];
 
   # Case-insensitivity workaround for https://github.com/linux-pam/linux-pam/issues/569
