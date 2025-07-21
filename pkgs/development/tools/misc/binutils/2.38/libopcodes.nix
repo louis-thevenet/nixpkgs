@@ -18,9 +18,7 @@ stdenv.mkDerivation {
     "dev"
   ];
 
-  patches = binutils-unwrapped_2_38.patches ++ [
-    ./build-components-separately.patch
-  ];
+  patches = binutils-unwrapped_2_38.patches ++ [ ./build-components-separately.patch ];
 
   # We just want to build libopcodes
   postPatch = ''

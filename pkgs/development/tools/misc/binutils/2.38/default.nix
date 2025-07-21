@@ -48,8 +48,8 @@ let
   #INFO: The targetPrefix prepended to binary names to allow multiple binuntils
   # on the PATH to both be usable.
   targetPrefix = lib.optionalString (targetPlatform != hostPlatform) "${targetPlatform.config}-";
-in
 
+in
 stdenv.mkDerivation {
   pname = targetPrefix + "binutils";
   inherit version;
