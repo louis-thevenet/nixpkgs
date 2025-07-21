@@ -1,4 +1,5 @@
 {
+  lib,
   stdenv,
   callPackage,
   withLinuxHeaders ? true,
@@ -8,7 +9,8 @@
 }:
 
 callPackage ./common.nix { inherit stdenv; } {
-  name = "glibc" + stdenv.lib.optionalString withGd "-gd";
+  name = "glibc" + lib.optionalString withGd "-gd";
+  pname = "glibc";
 
   inherit withLinuxHeaders profilingLibraries withGd;
 
@@ -44,7 +46,7 @@ callPackage ./common.nix { inherit stdenv; } {
     ]
     # XXX: Not actually musl-speciic but since only musl enables pie by default,
     #      limit rebuilds by only disabling pie w/musl
-    ++ stdenv.lib.optional stdenv.hostPlatform.isMusl "pie";
+    ++ lib.optional stdenv.hostPlatform.isMusl "pie";
 
   NIX_CFLAGS_COMPILE =
     if
@@ -58,10 +60,10 @@ callPackage ./common.nix { inherit stdenv; } {
       (if withGd then "-Wno-error=stringop-truncation" else null)
     else
       builtins.concatLists [
-        (stdenv.lib.optional withGd "-Wno-error=stringop-truncation")
+        (lib.optional withGd "-Wno-error=stringop-truncation")
         # Fix -Werror build failure when building glibc with musl with GCC >= 8, see:
         # https://github.com/NixOS/nixpkgs/pull/68244#issuecomment-544307798
-        (stdenv.lib.optional stdenv.hostPlatform.isMusl "-Wno-error=attribute-alias")
+        (lib.optional stdenv.hostPlatform.isMusl "-Wno-error=attribute-alias")
       ];
 
   # When building glibc from bootstrap-tools, we need libgcc_s at RPATH for
@@ -88,14 +90,14 @@ callPackage ./common.nix { inherit stdenv; } {
           make -j''${NIX_BUILD_CORES:-1} -l''${NIX_BUILD_CORES:-1} localedata/install-locales
         ''
       else
-        stdenv.lib.optionalString stdenv.buildPlatform.isLinux ''
+        lib.optionalString stdenv.buildPlatform.isLinux ''
           # This is based on http://www.linuxfromscratch.org/lfs/view/development/chapter06/glibc.html
           # Instead of using their patch to build a build-native localedef,
           # we simply use the one from buildPackages
           pushd ../glibc-2*/localedata
           export I18NPATH=$PWD GCONV_PATH=$PWD/../iconvdata
           mkdir -p $NIX_BUILD_TOP/${buildPackages.glibc}/lib/locale
-          ${stdenv.lib.getBin buildPackages.glibc}/bin/localedef \
+          ${lib.getBin buildPackages.glibc}/bin/localedef \
             --alias-file=../intl/locale.alias \
             -i locales/C \
             -f charmaps/UTF-8 \
@@ -133,7 +135,7 @@ callPackage ./common.nix { inherit stdenv; } {
     ''
     # For some reason these aren't stripped otherwise and retain reference
     # to bootstrap-tools; on cross-arm this stripping would break objects.
-    + stdenv.lib.optionalString (stdenv.hostPlatform == stdenv.buildPlatform) ''
+    + lib.optionalString (stdenv.hostPlatform == stdenv.buildPlatform) ''
 
       for i in "$out"/lib/*.a; do
           [ "$i" = "$out/lib/libm.a" ] || $STRIP -S "$i"
