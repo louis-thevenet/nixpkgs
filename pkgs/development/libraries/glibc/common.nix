@@ -40,9 +40,9 @@
 }@args:
 
 let
-  version = "2.27";
-  patchSuffix = "";
-  sha256 = "0wpwq7gsm7sd6ysidv0z575ckqdg13cr2njyfgrbgh4f65adwwji";
+  version = "2.28";
+  patchSuffix = "10";
+  sha256 = "10iha5ynvdj5m62vgpgqbq4cwvc2yhyl2w9yyyjgfxmdmx8h145i";
 in
 
 assert withLinuxHeaders -> linuxHeaders != null;
@@ -104,9 +104,9 @@ stdenv.mkDerivation (
         })
 
         # https://sourceware.org/git/gitweb.cgi?p=glibc.git;h=5460617d1567657621107d895ee2dd83bc1f88f2
-        ./CVE-2018-11236.patch
+        # ./CVE-2018-11236.patch
         # https://sourceware.org/git/gitweb.cgi?p=glibc.git;h=f51c8367685dc888a02f7304c729ed5277904aff
-        ./CVE-2018-11237.patch
+        # ./CVE-2018-11237.patch
       ]
       ++ lib.optionals stdenv.isx86_64 [
         ./fix-x64-abi.patch
@@ -137,6 +137,8 @@ stdenv.mkDerivation (
 
     configureFlags =
       [
+        "--disable-werror" # Recent GCC is more strict
+
         "-C"
         "--enable-add-ons"
         "--enable-obsolete-nsl"
