@@ -54,6 +54,7 @@ stdenv.mkDerivation {
 
   patches =
     [
+      ./fix-string-newer-gcc.patch
       # Make binutils output deterministic by default.
       ./deterministic.patch
 
