@@ -1,5 +1,4 @@
 {
-  lib,
   runCommand,
   glibc,
   glibc32,
@@ -10,21 +9,13 @@ let
   glibc64 = glibc;
 in
 runCommand "${nameVersion.name}-multi-${nameVersion.version}"
-  # out as the first output is an exception exclusive to glibc
   {
     outputs = [
-      "out"
       "bin"
       "dev"
-      "static"
+      "out"
     ];
-    passthru = {
-      libgcc = lib.lists.filter (x: x != null) [
-        (glibc64.libgcc or null)
-        (glibc32.libgcc or null)
-      ];
-    };
-  }
+  } # TODO: no static version here (yet)
   ''
     mkdir -p "$out/lib"
     ln -s '${glibc64.out}'/lib/* "$out/lib"
@@ -43,13 +34,4 @@ runCommand "${nameVersion.name}-multi-${nameVersion.version}"
     cp -rs '${glibc32.dev}'/include "$dev/"
     chmod +w -R "$dev"
     cp -rsf '${glibc64.dev}'/include "$dev/"
-
-    mkdir -p "$static/lib" "$static/lib64"
-    # create symlinks for files used for dynamic linking
-    # -> removing this will cause dynamically linked programs to segfault
-    cp -rs '${glibc32.out}'/lib/* "$static/lib"
-    cp -rs '${glibc64.out}'/lib/* "$static/lib64"
-    # create symlinks for files used for static linking
-    cp -rs '${glibc32.static}'/lib/* "$static/lib"
-    cp -rs '${glibc64.static}'/lib/* "$static/lib64"
   ''
