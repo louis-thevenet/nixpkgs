@@ -143,7 +143,12 @@ stdenv.mkDerivation {
   ] ++ lib.optional (stdenv.targetPlatform != stdenv.hostPlatform) "target";
 
   configureFlags =
-    (
+    [
+      "--disable-werror" # Recent GCC is more strict
+      "CFLAGS=-Wno-narrowing"
+      "CXXFLAGS=-Wno-narrowing"
+    ]
+    ++ (
       if enableShared then
         [
           "--enable-shared"
