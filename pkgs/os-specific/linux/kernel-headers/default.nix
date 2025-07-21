@@ -20,7 +20,7 @@ let
       pname = "linux-headers";
       inherit version;
 
-      ARCH = stdenvNoCC.hostPlatform.platform.kernelArch or stdenvNoCC.hostPlatform.kernelArch;
+      ARCH = stdenvNoCC.hostPlatform.linuxArch;
 
       # It may look odd that we use `stdenvNoCC`, and yet explicit depend on a cc.
       # We do this so we have a build->build, not build->host, C compiler.
@@ -31,7 +31,7 @@ let
         elf-header
       ];
 
-      extraIncludeDirs = lib.optional stdenvNoCC.hostPlatform.isPowerPC [ "ppc" ];
+      extraIncludeDirs = lib.optional stdenvNoCC.hostPlatform.isPower [ "ppc" ];
 
       inherit patches;
 
@@ -45,8 +45,8 @@ let
         "cc-version:=9999"
         "cc-fullversion:=999999"
         # `$(..)` expanded by make alone
-        "HOSTCC:=$(BUILD_CC)"
-        "HOSTCXX:=$(BUILD_CXX)"
+        # "HOSTCC:=$(BUILD_CC)"
+        # "HOSTCXX:=$(BUILD_CXX)"
       ];
 
       # Skip clean on darwin, case-sensitivity issues.
