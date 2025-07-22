@@ -103,8 +103,7 @@ let
       '';
     };
     getent = {
-      linux =
-        if stdenv.hostPlatform.libc == "glibc" then pkgs.stdenv.cc.libc.getent else pkgs.netbsd.getent;
+      linux = if stdenv.hostPlatform.libc == "glibc" then pkgs.stdenv.cc.libc else pkgs.netbsd.getent;
       darwin = pkgs.netbsd.getent;
       freebsd = pkgs.freebsd.getent;
       openbsd = pkgs.openbsd.getent;
