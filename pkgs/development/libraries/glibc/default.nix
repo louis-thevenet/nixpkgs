@@ -81,7 +81,12 @@ callPackage ./common.nix { inherit stdenv; } {
         cp ${stdenv.cc.cc}/lib/libgcc_s.so.1 $out/lib/libgcc_s.so.1
         # the .so It used to be a symlink, but now it is a script
         cp -a ${stdenv.cc.cc}/lib/libgcc_s.so $out/lib/libgcc_s.so
-    fi
+      elif [ -f ${stdenv.cc.cc.lib}/lib/libgcc_s.so.1 ]; then
+        mkdir -p $out/lib
+        cp ${stdenv.cc.cc.lib}/lib/libgcc_s.so.1 $out/lib/libgcc_s.so.1
+        # the .so It used to be a symlink, but now it is a script
+        cp -a ${stdenv.cc.cc.lib}/lib/libgcc_s.so $out/lib/libgcc_s.so
+      fi
   '';
 
   postInstall =
