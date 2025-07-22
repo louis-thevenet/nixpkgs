@@ -17,6 +17,7 @@
   bison ? null,
   flex,
   texinfo,
+  runCommand,
 }:
 
 let
@@ -46,7 +47,7 @@ let
     });
 
 in
-stdenv.mkDerivation {
+stdenv.mkDerivation rec {
   pname = targetPrefix + basename;
   inherit version;
 
@@ -194,7 +195,20 @@ stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
-  passthru = { inherit targetPrefix; };
+  passthru = {
+    inherit targetPrefix;
+    # The plugin API is not a function of any targets. Expose it separately,
+    # currently only used by LLVM for enabling BFD to do LTO with LLVM bitcode.
+    # (Tar will exit with an error if there are no matches).
+    plugin-api-header = runCommand "libbfd-plugin-api-header" { } ''
+      mkdir -p $out
+      tar --directory=$out \
+      --extract \
+      --file=${src} \
+      --strip-components=1 \
+        --wildcards '*'/include/plugin-api.h
+    '';
+  };
 
   meta = with lib; {
     description = "Tools for manipulating binaries (linker, assembler, etc.)";
