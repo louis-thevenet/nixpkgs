@@ -6,11 +6,13 @@
   profilingLibraries ? false,
   withGd ? false,
   buildPackages,
+  libgcc,
 }:
 
 callPackage ./common.nix { inherit stdenv; } {
   name = "glibc" + lib.optionalString withGd "-gd";
   pname = "glibc";
+  passthru = { inherit libgcc; };
 
   inherit withLinuxHeaders profilingLibraries withGd;
 
