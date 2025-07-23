@@ -45,6 +45,9 @@ stdenv.mkDerivation rec {
     "--with-arm"
     "--with-aarch64"
   ];
+  NIX_CFLAGS_COMPILE = [
+    "-fcommon" # Allow multiple definitions (GCC 10+ defaults to -fno-common)
+  ];
   enableParallelBuilding = true;
 
   # TODO: Remove the musl patches when
