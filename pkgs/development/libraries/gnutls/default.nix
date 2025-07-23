@@ -102,9 +102,10 @@ stdenv.mkDerivation rec {
       # See https://gitlab.com/gnutls/gnutls/-/issues/945
       sed '2iecho "certtool tests skipped in musl build"\nexit 0' -i tests/cert-tests/certtool.sh
     ''
-    + lib.optionalString stdenv.hostPlatform.isLinux ''
-      sed '2iexit 77' -i tests/{ktls,ktls_keyupdate}.sh
-    '';
+  # + lib.optionalString stdenv.hostPlatform.isLinux ''
+  #   sed '2iexit 77' -i tests/{ktls,ktls_keyupdate}.sh
+  # ''
+  ;
 
   preConfigure = "patchShebangs .";
   configureFlags =
@@ -119,9 +120,9 @@ stdenv.mkDerivation rec {
       (lib.withFeature withP11-kit "p11-kit")
       (lib.enableFeature cxxBindings "cxx")
     ]
-    ++ lib.optionals stdenv.hostPlatform.isLinux [
-      "--enable-ktls"
-    ]
+    # ++ lib.optionals stdenv.hostPlatform.isLinux [
+    # "--enable-ktls"
+    # ]
     ++ lib.optionals (stdenv.hostPlatform.isMinGW) [
       "--disable-doc"
     ]
