@@ -669,7 +669,7 @@ stdenv.mkDerivation (
         (enableFeature withOpengl "opengl")
         (enableFeature withOpenh264 "libopenh264")
         (enableFeature withOpenjpeg "libopenjpeg")
-        (enableFeature withOpenmpt "libopenmpt")
+        (enableFeature false "libopenmpt")
         (enableFeature withOpus "libopus")
       ]
       ++ optionals (versionAtLeast version "5.0") [
@@ -868,7 +868,7 @@ stdenv.mkDerivation (
       ]
       ++ optionals withOpenh264 [ openh264 ]
       ++ optionals withOpenjpeg [ openjpeg ]
-      ++ optionals withOpenmpt [ libopenmpt ]
+      ++ optionals false [ libopenmpt ]
       ++ optionals withOpus [ libopus ]
       ++ optionals withPlacebo [
         (if (lib.versionAtLeast version "6.1") then libplacebo else libplacebo_5)
